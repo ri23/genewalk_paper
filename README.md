@@ -14,11 +14,11 @@ GW with all input genes (irrespective of whether it is directly connected with a
 ### 3. REV3TRAN 
 GW with direct edges to all parent GO terms (transitivity): should lose the functionality. In my opinion this approach is not useful but perhaps required as a negative control run.
 ### 4. REV4NOGO 
-GW with only GO annotations, no GO ontology: should loose functionality as the ontology structure provides information and connectivity between different annotations and different genes that are not directly connected. CODE:
+GW with only GO annotations, no GO ontology: should loose functionality as the ontology structure provides information and connectivity between different annotations and different genes that are not directly connected.
 ### 5. REV5ALLG 
 GW with all expressed genes in there rather than DE genes.
 Do not pursue this for indra as that would require using their whole db, not feasible / necessary for reviewers.
-### 6. REV6GRAN: not yet pushed, work in progress
+### 6. REV6GRAN: work in progress
 GW with randomization of only gene-gene interactions to generate null distribution.
 ### 7. REV7PARA
 Run some more tests with other hyperparameters: N_iteration=50, unlikely to make a difference.
