@@ -209,7 +209,6 @@ class PcNxMgAssembler(NxMgAssembler):
         col_mapper[2] = 'target'
         edge_attributes = True
         gwn_df = gwn_df.rename(mapper=col_mapper, axis='columns')
-         
         pc = nx.from_pandas_edgelist(gwn_df, source='source', target='target',
                                      edge_attr=edge_attributes,
                                      create_using=nx.MultiGraph)
