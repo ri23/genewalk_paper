@@ -1,0 +1,7 @@
+sphinx
+sphinx_rtd_theme
+gensim
+mock
+networkx
+pandas
+statsmodels

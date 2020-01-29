@@ -1,6 +1,6 @@
 # genewalk_paper
 
-in folder genewalk: starting code = current master branch of genewalk repo.
+in folder genewalk: starting code = current master branch of genewalk repo (Latest commit 8d732bb).
 On top are different cli_REVXXXXX.py and necessary adjustments to run each control described below.
 
 ### 0. Rerun with latest churchmanlab/genewalk/master code
