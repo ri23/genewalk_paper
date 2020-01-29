@@ -10,7 +10,7 @@ import numpy as np
 from genewalk import __version__
 from genewalk.nx_mg_assembler import load_network
 from genewalk.gene_lists import read_gene_list
-from genewalk.deepwalk import run_walks
+from genewalk.deepwalk_REV8N2VE import run_walks
 from genewalk.null_distributions import get_rand_graph, \
     get_null_distributions
 from genewalk.perform_statistics import GeneWalk
