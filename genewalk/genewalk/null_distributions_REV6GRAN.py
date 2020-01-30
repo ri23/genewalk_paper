@@ -3,6 +3,7 @@ distribution for GeneWalk networks."""
 import logging
 import networkx as nx
 import random
+import copy
 
 logger = logging.getLogger('genewalk.get_null_distributions')
 
