@@ -26,5 +26,6 @@ Run some more tests with other hyperparameters: N_iteration=50, unlikely to make
 Node2vec approach to assess how biased random walks (breadth first or depth first) as opposed to unbiased random walk (DeepWalk) affect the results. Expected outcome: depth search will underperform as it does not query local neighborhood sufficiently.
 ### 9. REV9GDGO
 GW with random walks only starting in the genes and direct GO annotations. Test to see if it lowers run time / maintains good results. NB: with normal null distribution, so no speed up in that part of code.
-
+### 10. REV10_269
+GW with REV6, REV9 and REV2 implemented.
 
