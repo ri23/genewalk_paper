@@ -18,8 +18,8 @@ GW with only GO annotations, no GO ontology: should loose functionality as the o
 ### 5. REV5ALLG 
 GW with all expressed genes in there rather than DE genes.
 Do not pursue this for indra as that would require using their whole db, not feasible / necessary for reviewers.
-### 6. REV6GRAN: work in progress
-GW with randomization of only gene-gene interactions to generate null distribution.
+### 6. REV6GRAN
+GW with randomization of only gene-gene and gene-GO term edges to generate null distribution.
 ### 7. REV7PARA
 Run some more tests with other hyperparameters: N_iteration=50, unlikely to make a difference.
 ### 8. REV8N2VE (by Ben Gyori)
