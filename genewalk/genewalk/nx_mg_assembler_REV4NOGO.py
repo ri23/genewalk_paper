@@ -294,8 +294,10 @@ class IndraNxMgAssembler(NxMgAssembler):
         if go_id:
             go_id = go_id if go_id.startswith('GO:') else 'GO:%s' % go_id
             node_key = go_id
-            name = go_client.get_go_label(go_id)
-            self.graph.add_node(node_key, name=name,
+            go_term = self.go_dag[go_id]#REV4NOGO: to get domain
+#             name = go_client.get_go_label(go_id)#REV4NOGO: standardize to match add GO ontology code
+            self.graph.add_node(node_key, name=go_term.name, #REV4NOGO
+                                domain=go_term.namespace, #REV4NOGO
                                 source='indra', **agent.db_refs)
         else:
             node_key = agent.name
