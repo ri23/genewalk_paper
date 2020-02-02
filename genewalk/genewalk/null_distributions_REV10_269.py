@@ -29,17 +29,21 @@ def get_rand_graph(mg):
     GOanno_nodes = []
     for node in nx.nodes(mg):
         node_dict = mg.nodes[node]
-        subgr_temp = nx.ego_graph(mg,node)
         if 'GO' in node_dict:#node is GO term
             GO_nodes.append(node)
-            #node is GO annotation
-            if 'GO:annotation' in nx.get_edge_attributes(subgr_temp,'label').values():
-                GOanno_nodes.append(node)
+            #test if node is GO annotation:
+            for u,v,lab in graph.edges(nbunch=node,data='label', default='NA'):
+                if lab == 'GO:annotation':#incident edge of node is a GO annotation: include node
+                    GOanno_nodes.append(node)
+                    break
         else:
             gene_nodes.append(node)
-            #node is connected to GO term through annotation edge
-            if 'GO:annotation' in nx.get_edge_attributes(subgr_temp,'label').values():
-                geneanno_nodes.append(node)
+            #test if node is connected to GO term through annotation edge
+            for u,v,lab in graph.edges(nbunch=node,data='label', default='NA'):
+                if lab == 'GO:annotation':#incident edge of node is a GO annotation: include node
+                    geneanno_nodes.append(node)
+                    break
+
 
     #get randomized gene-gene subgraph
     submg_gene = mg.subgraph(gene_nodes)

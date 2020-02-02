@@ -2,8 +2,8 @@
 distribution for GeneWalk networks."""
 import logging
 import networkx as nx
-import random
-import copy
+import random #REV6GRAN
+import copy #REV6GRAN
 
 logger = logging.getLogger('genewalk.get_null_distributions')
 
@@ -29,17 +29,20 @@ def get_rand_graph(mg):
     GOanno_nodes = []
     for node in nx.nodes(mg):
         node_dict = mg.nodes[node]
-        subgr_temp = nx.ego_graph(mg,node)
         if 'GO' in node_dict:#node is GO term
             GO_nodes.append(node)
-            #node is GO annotation
-            if 'GO:annotation' in nx.get_edge_attributes(subgr_temp,'label').values():
-                GOanno_nodes.append(node)
+            #test if node is GO annotation:
+            for u,v,lab in graph.edges(nbunch=node,data='label', default='NA'):
+                if lab == 'GO:annotation':#incident edge of node is a GO annotation: include node
+                    GOanno_nodes.append(node)
+                    break
         else:
             gene_nodes.append(node)
-            #node is connected to GO term through annotation edge
-            if 'GO:annotation' in nx.get_edge_attributes(subgr_temp,'label').values():
-                geneanno_nodes.append(node)
+            #test if node is connected to GO term through annotation edge
+            for u,v,lab in graph.edges(nbunch=node,data='label', default='NA'):
+                if lab == 'GO:annotation':#incident edge of node is a GO annotation: include node
+                    geneanno_nodes.append(node)
+                    break
 
     #get randomized gene-gene subgraph
     submg_gene = mg.subgraph(gene_nodes)
@@ -67,6 +70,7 @@ def get_rand_graph(mg):
     subrg_geneGOanno = nx.bipartite.configuration_model(bipart_gene_seq,bipart_GOanno_seq)
     #subrg_geneGOanno is composed of two partitions. Set A has nodes 0 to
     #(len(aseq) - 1) and set B has nodes len(aseq) to (len(bseq) - 1).
+    nx.set_edge_attributes(subrg_geneGOanno, 'GO:annotation', name='label')
     rndgeneanno_nodes = copy.deepcopy(geneanno_nodes)
     random.shuffle(rndgeneanno_nodes)#inplace shuffling
     #rndmapping is a random mapping from subrg_geneGOanno nodes, ie numbers, to shuffled (randomized) gene nodes
