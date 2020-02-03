@@ -1,4 +1,4 @@
-"""This module implements functions related to the construction of a null
+ .."""This module implements functions related to the construction of a null
 distribution for GeneWalk networks."""
 import logging
 import networkx as nx
@@ -32,14 +32,14 @@ def get_rand_graph(mg):
         if 'GO' in node_dict:#node is GO term
             GO_nodes.append(node)
             #test if node is GO annotation:
-            for u,v,lab in graph.edges(nbunch=node,data='label', default='NA'):
+            for u,v,lab in mg.edges(nbunch=node,data='label', default='NA'):
                 if lab == 'GO:annotation':#incident edge of node is a GO annotation: include node
                     GOanno_nodes.append(node)
                     break
         else:
             gene_nodes.append(node)
             #test if node is connected to GO term through annotation edge
-            for u,v,lab in graph.edges(nbunch=node,data='label', default='NA'):
+            for u,v,lab in mg.edges(nbunch=node,data='label', default='NA'):
                 if lab == 'GO:annotation':#incident edge of node is a GO annotation: include node
                     geneanno_nodes.append(node)
                     break
