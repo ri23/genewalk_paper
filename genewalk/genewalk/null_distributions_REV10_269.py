@@ -1,4 +1,4 @@
- .."""This module implements functions related to the construction of a null
+ """This module implements functions related to the construction of a null
 distribution for GeneWalk networks."""
 import logging
 import networkx as nx
