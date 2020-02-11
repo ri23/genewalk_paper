@@ -19,6 +19,15 @@ default_walk_length = 10
 default_niter = 100
 
 
+def choice(options, probs):
+    r = np.random.rand()
+    cum = 0.0
+    for option, prob in zip(options, probs):
+        cum += prob
+        if r < cum:
+            return option
+
+
 class DeepWalk(object):
     """Perform DeepWalk (node2vec), i.e., unbiased random walk over nodes
     on an undirected networkx MultiGraph.
@@ -40,12 +49,24 @@ class DeepWalk(object):
         A list of walks.
     """
     def __init__(self, graph, walk_length=default_walk_length,
-                 niter=default_niter):
+                 niter=default_niter, p=1.0, q=1.0):
         self.graph = graph
         self.walks = []
         self.wl = walk_length
         self.niter = niter
         self.model = None
+        self.p = p
+        self.q = q
+        self.get_transition_matrix()
+
+    def get_transition_matrix(self):
+        T = {}
+        for start_node in self.graph:
+            for other_node in list(self.graph[start_node]) + [None]:
+                n, p = get_neighbors_probs(self.graph, start_node,
+                                           other_node, self.p, self.q)
+                T[(start_node, other_node)] = (n, p)
+        self.graph.T = T
 
     def get_walks(self, workers=1, p=1, q=1):
         """Generates walks (sentences) sampled by an (unbiased) random walk
@@ -173,8 +194,9 @@ def run_single_walk(start_node, graph, length, p=1, q=1):
     """
     path = [None, start_node]
     for i in range(1, length):
-        neighbors, probs = get_neighbors_probs(graph, path[-1], path[-2], p, q)
-        next_node = np.random.choice(neighbors, p=probs)
+        #neighbors, probs = get_neighbors_probs(graph, path[-1], path[-2], p, q)
+        neighbors, probs = graph.T[(path[-1], path[-2])]
+        next_node = choice(neighbors, probs)
         path.append(next_node)
     path = path[1:]
     return path
