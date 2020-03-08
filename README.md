@@ -15,14 +15,14 @@ GW with direct edges to all parent GO terms (transitivity): should lose the func
 ### 4. REV4NOGO 
 GW with only GO annotations, no GO ontology: should loose functionality as the ontology structure provides information and connectivity between different annotations and different genes that are not directly connected.
 ### 5. REV5ALLG 
-GW with all expressed genes in there rather than DE genes.
-Do not pursue this for indra as that would require using their whole db, not feasible / necessary for reviewers.
+GW with all expressed genes in there rather than DE genes using Pathway Commons.
+Not pursued this for indra. 
 ### 6. REV6GRAN
 GW with randomization of only gene-gene and gene-GO term edges to generate null distribution.
 ### 7. REV7PARA
 Run some more tests with other hyperparameters: N_iteration=50, unlikely to make a difference.
 ### 8. REV8N2VE (by Ben Gyori)
-Node2vec approach to assess how biased random walks (breadth first or depth first) as opposed to unbiased random walk (DeepWalk) affect the results. Expected outcome: depth search will underperform as it does not query local neighborhood sufficiently.
+Node2vec approach to assess how biased random walks (breadth first or depth first) as opposed to unbiased random walk (DeepWalk) affect the results.
 ### 9. REV9GDGO
 GW with random walks only starting in the genes and direct GO annotations. Test to see if it lowers run time / maintains good results. NB: with normal null distribution, so no speed up in that part of code.
 ### 10. REV10_269
