@@ -1,10 +1,9 @@
 # genewalk_paper
 
-in folder genewalk: starting code = current master branch of genewalk repo (Latest commit 8d732bb).
-On top are different cli_REVXXXXX.py and necessary adjustments to run each control described below.
+Different cli_REVXXXXX.py and necessary adjustments to run each GeneWalk test version described below.
 
-### 0. Rerun with latest churchmanlab/genewalk/master code
-no changes, used as control comparison.  
+### 0. Rerun with default GeneWalk as comparison.
+no changes. Exact code version that was used: master branch of genewalk repo (Latest commit 8d732bb). 
 ### 1. REV1NOGG 
 GW without the gene-gene interactions: this would shows that we need the gene-gene interactions to 
 help deciding what are the relevant gene functions. 
