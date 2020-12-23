@@ -22,10 +22,7 @@ class GeneWalk(object):
     chosen significance level alpha_FDR.  
     3) (in case of mouse genes) no mapped human ortholog was identified.  
     If a gene is listed in the output file with NaN values in the columns ncon_go 
-    and ncon_gene, that means the gene was not included in the GeneWalk
-    network, because no reaction statement(s) of this gene with any other 
-    input gene was retrieved from the knowledge base. Therefore, there is
-    insufficient context-specificity for this gene to make relevance predictions. 
+    and ncon_gene, the gene was not included in the GeneWalk network. 
 
     Parameters
     ----------
@@ -80,14 +77,15 @@ class GeneWalk(object):
         for idx in range(len(go_attribs)):
             go_attribs[idx]['qval'] = qvals[idx]
         return go_attribs
-
+        
     def log_stats(self, vals):
         eps = 1e-16
         nreps = len(vals)
         vals = np.asarray(vals)+eps
         g_mean = gmean(vals)-eps
         g_std = gstd(vals)
-        return g_mean, g_mean*(g_std**(-1.96/np.sqrt(nreps))), g_mean*(g_std**(1.96/np.sqrt(nreps)))
+        return g_mean, g_mean*(g_std**(-1.96/np.sqrt(nreps))), \
+            g_mean*(g_std**(1.96/np.sqrt(nreps)))
 
     def add_empty_row(self, gene, gene_attribs, base_id_type):
         row = [gene_attribs['hgnc_symbol'],
@@ -96,10 +94,14 @@ class GeneWalk(object):
                gene_attribs['ncon_gene'],
                np.nan, np.nan, np.nan, np.nan,
                np.nan, np.nan, np.nan, np.nan, np.nan]
+        row.extend([np.nan for i in range(len(self.nvs))])
         if base_id_type == 'mgi_id':
             row = [gene.get('MGI', '')] + row
         elif base_id_type == 'ensembl_id':
             row = [gene.get('ENSEMBL', '')] + row
+        elif base_id_type == 'entrez_mouse' or \
+             base_id_type == 'entrez_human':
+            row = [gene.get('EGID', '')] + row
         return row
 
     def generate_output(self, alpha_fdr=1, base_id_type='hgnc_symbol'):
@@ -137,7 +139,7 @@ class GeneWalk(object):
                                 go_attrib_dict[go_id] = [go_attribs]
 
                     for go_id, go_attribs in go_attrib_dict.items():
-                        mean_padj, low_padj, upp_padj = \
+                        gene_padj, low_gene_padj, upp_gene_padj = \
                             self.log_stats([attr['qval']
                                             for attr in go_attribs])
                         mean_pval, low_pval, upp_pval = \
@@ -148,7 +150,7 @@ class GeneWalk(object):
                         sem_sim = (np.std([attr['sim_score']
                                            for attr in go_attribs]) /
                                    np.sqrt(len(self.nvs)))
-                        if mean_padj < alpha_fdr or alpha_fdr == 1:
+                        if gene_padj < alpha_fdr or alpha_fdr == 1:
                             row = [gene_attribs['hgnc_symbol'],
                                    gene_attribs['hgnc_id'],
                                    go_attribs[0]['go_name'],
@@ -156,16 +158,21 @@ class GeneWalk(object):
                                    go_attribs[0]['go_domain'],
                                    gene_attribs['ncon_gene'],
                                    go_attribs[0]['ncon_go'],
-                                   mean_padj, low_padj, upp_padj,
-                                   mean_pval, low_pval, upp_pval,
-                                   mean_sim, sem_sim]
+                                   gene_padj, mean_pval, 
+                                   mean_sim, sem_sim,
+                                   low_gene_padj, upp_gene_padj,
+                                   low_pval, upp_pval]
+                            row.extend([attr['pval'] for attr in go_attribs])
                             # If dealing with mouse genes, prepend the MGI ID
                             if base_id_type == 'mgi_id':
                                 row = [gene.get('MGI', '')] + row
                             elif base_id_type == 'ensembl_id':
                                 row = [gene.get('ENSEMBL', '')] + row
+                            elif base_id_type == 'entrez_mouse' or \
+                                 base_id_type == 'entrez_human':
+                                row = [gene.get('EGID', '')] + row
                             rows.append(row)
-                elif alpha_fdr == 1:  # case: no GO connections
+                elif alpha_fdr == 1:  #case: no GO connections
                     row = self.add_empty_row(gene, gene_attribs, base_id_type)
                     rows.append(row)
             elif alpha_fdr == 1:  # case: not in graph
@@ -174,22 +181,27 @@ class GeneWalk(object):
         header = ['hgnc_symbol', 'hgnc_id',
                   'go_name', 'go_id', 'go_domain',
                   'ncon_gene', 'ncon_go',
-                  'mean_padj', 'cilow_padj', 'ciupp_padj',
-                  'mean_pval', 'cilow_pval', 'ciupp_pval',
-                  'mean_sim',  'sem_sim',
-                  ]
-        if base_id_type in {'mgi_id', 'ensembl_id'}:
+                  'gene_padj', 'pval', 
+                  'sim',  'sem_sim',
+                  'cilow_gene_padj', 'ciupp_gene_padj',
+                  'cilow_pval', 'ciupp_pval']
+        header.extend(['pval_rep'+str(i) for i in range(len(self.nvs))])
+        if base_id_type in {'mgi_id', 'ensembl_id', 'entrez_human',
+                            'entrez_mouse'}:
             header = [base_id_type] + header
 
         df = pd.DataFrame.from_records(rows, columns=header)
+        df = self.global_fdr(df,alpha_fdr)
+        df.drop(['pval_rep'+str(i) for i in range(len(self.nvs))],
+                axis=1, inplace=True) 
         df[base_id_type] = df[base_id_type].astype('category')
         df[base_id_type].cat.set_categories(df[base_id_type].unique(),
                                             inplace=True)
         df[['ncon_gene', 'ncon_go']] = \
             df[['ncon_gene', 'ncon_go']].astype('str')
-        df = df.sort_values(by=[base_id_type, 'go_domain', 'mean_padj',
-                                'mean_sim', 'go_name'],
-                            ascending=[True, True, True, False, True])
+        df = df.sort_values(by=[base_id_type, 'global_padj', 'gene_padj', 
+                                'sim', 'go_domain', 'go_name'],
+                            ascending=[True, True, True, False, True, True])
         return df
 
     def psim(self, sim):
@@ -200,4 +212,28 @@ class GeneWalk(object):
         rank = np.searchsorted(self.srd, sim)
         pct_rank = float(rank) / len(self.srd)
         pval = 1 - pct_rank
+        eps = 1e-16
+        if pval < eps:
+            pval = eps
         return pval
+
+    def global_fdr(self,df,alpha_fdr):
+        global_stats = {'global_padj': [], 'cilow_global_padj': [],
+                        'ciupp_global_padj': []}
+        colloc = {'global_padj': 8, 'cilow_global_padj': 4,
+                          'ciupp_global_padj': 4} 
+        ids = df[~df['pval_rep0'].isna()].index
+        qvals = np.empty((len(ids),len(self.nvs)))
+        qvals[:] = np.nan
+        for i in range(len(self.nvs)):
+            _, qvals[:,i] = fdrcorrection(df['pval_rep'+str(i)][ids], 
+                                        alpha=alpha_fdr, method='indep')
+        for i in range(qvals.shape[0]):
+            mean_padj, low_padj, upp_padj = self.log_stats(qvals[i,:])
+            global_stats['global_padj'].append(mean_padj)
+            global_stats['cilow_global_padj'].append(low_padj)
+            global_stats['ciupp_global_padj'].append(upp_padj)
+        for key in global_stats.keys():
+            df.insert((len(df.columns)-colloc[key]-len(self.nvs)),key,np.nan)
+            df.loc[ids,key] = global_stats[key]
+        return df
