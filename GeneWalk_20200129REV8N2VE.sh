@@ -57,7 +57,7 @@ do
             --project ${date}_${tr}_${ds}seed${seed}p${n2v_p}q${n2v_q} \
             --network_file ${baseDir}/${fnetwork} \
             --network_source ${ds} --genes ${baseDir}/${tr}_forGW.csv --id_type ${idt} --stage ${stage} \
-            --nproc ${nthread} --nreps_graph 10 --nreps_null 10 --random_seed ${seed} \
+            --nproc ${nthread} --nreps_graph 3 --nreps_null 3 --random_seed ${seed} \
             --n2v_p ${n2v_p} --n2v_q ${n2v_q} ; \
             pip freeze >> ${baseDir}/LogErr/${jobname}py.out"
 		done
