@@ -27,4 +27,5 @@ Node2vec approach to assess how biased random walks (breadth first or depth firs
 GW with random walks only starting in the genes and direct GO annotations. Test to see if it lowers run time / maintains good results. NB: with normal null distribution, so no speed up in that part of code.
 ### 10. REV10_269
 GW with REV6, REV9 and REV2 implemented.
-
+### 11. REV11LINF
+GW with long random walk lengths of 1000 steps and N_iteration=1. This version approximates a network representation learning algorithm through spectral decomposition (matrix factorization) as it is mathematically equivalent to DeepWalk with infinite walk lengths.
